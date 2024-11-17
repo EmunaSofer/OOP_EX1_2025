@@ -1,8 +1,9 @@
 import java.util.ArrayList;
 
 public class Position {
-    int row;
-    int col;
+    protected int row;
+    protected int col;
+    protected Disc disc;
 
     public Position(int row, int col) {
         this.col = col;
@@ -15,6 +16,9 @@ public class Position {
 
     public int row() {
         return row;
+    }
+    public Disc getDisc(){
+        return this.disc;
     }
 
 }
