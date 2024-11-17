@@ -1,6 +1,7 @@
 import java.util.List;
 
 public class GameLogic implements PlayableLogic{
+
     @Override
     public boolean locate_disc(Position a, Disc disc) {
         return false;
