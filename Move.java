@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Move
 {
     protected Position position;
@@ -14,8 +17,10 @@ public class Move
         return this.disc;
     }
 
-    public static int movePosition(Position position, Player currentPlayer, Player otherPlayer)
+    public static List<Position> movePosition(Position position, Player currentPlayer, Player otherPlayer)
     {
+         List<Position> ans=new ArrayList<>();
+        List<Position> help= new ArrayList<>();
          Position left = new Position(position.row, position.col - 1);
          Position right = new Position(position.row, position.col + 1);
          Position up = new Position(position.row - 1, position.col);
@@ -25,31 +30,130 @@ public class Move
          Position rightUp = new Position(position.row + 1, position.col - 1);
          Position rightDoun = new Position(position.row + 1, position.col + 1);
 
-         if(GameLogic.isValidPosition(left) && left.getDisc().getOwner()==otherPlayer){
-
-
+         while (cheak(left,otherPlayer))
+         {
+             help.add(left);
+             left.setCol(left.col-1);
          }
-        if(GameLogic.isValidPosition(right) && right.getDisc().getOwner()==otherPlayer){
+         if (left.getDisc().getOwner() == currentPlayer)
+         {
+             for (int i = 0; i < help.size(); i++)
+             {
+                 ans.add(help.get(i));
+             }
+         }
+        help.clear();
+
+        while (cheak(right,otherPlayer))
+        {
+            help.add(right);
+            right.setCol(right.col+1);
+        }
+        if (right.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
+
+        while (cheak(up,otherPlayer))
+        {
+            help.add(up);
+            up.setRow(up.row-1);
+        }
+        if (up.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
+
+        while (cheak(down,otherPlayer))
+        {
+            help.add(down);
+            down.setRow(down.row+1);
 
         }
-        if(GameLogic.isValidPosition(up) && up.getDisc().getOwner()==otherPlayer){
-
+        if (down.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
         }
-        if(GameLogic.isValidPosition(down) && down.getDisc().getOwner()==otherPlayer){
+        help.clear();
 
+        while (cheak(leftUp,otherPlayer))
+        {
+            help.add(leftUp);
+            leftUp.setCol(leftUp.col-1);
+            leftUp.setRow(leftUp.row-1);
         }
-        if(GameLogic.isValidPosition(leftUp) && leftUp.getDisc().getOwner()==otherPlayer){
+        if (leftUp.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
 
+        while (cheak(leftDoun,otherPlayer))
+        {
+            help.add(leftDoun);
+            leftDoun.setCol(leftDoun.col-1);
+            leftDoun.setRow(leftDoun.row+1);
         }
-        if(GameLogic.isValidPosition(leftDoun) && leftDoun.getDisc().getOwner()==otherPlayer){
+        if (leftDoun.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
 
+        while (cheak(rightUp,otherPlayer))
+        {
+            help.add(rightUp);
+            rightUp.setCol(rightUp.col+1);
+            rightUp.setRow(rightUp.row-1);
         }
-        if(GameLogic.isValidPosition(rightUp) && rightUp.getDisc().getOwner()==otherPlayer){
+        if (rightUp.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
 
+        while (cheak(rightDoun,otherPlayer))
+        {
+            help.add(rightDoun);
+            rightDoun.setCol(rightDoun.col+1);
+            rightDoun.setRow(rightDoun.row+1);
         }
-        if(GameLogic.isValidPosition(rightDoun) && rightDoun.getDisc().getOwner()==otherPlayer){
+        if (rightDoun.getDisc().getOwner() == currentPlayer)
+        {
+            for (int i = 0; i < help.size(); i++)
+            {
+                ans.add(help.get(i));
+            }
+        }
+        help.clear();
 
-        }
-        return 0;
+        return  ans;
     }
-}
+    public static boolean cheak(Position position,Player otherPlayer)
+    {
+        return GameLogic.isValidPosition(position) && position.getDisc().getOwner() == otherPlayer&&position.getDisc()==null;
+    }
+
+  }
+
+
