@@ -1,7 +1,8 @@
+/*
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameLogic implements PlayableLogic{
+public class sss {
 
     private Player player1;
     private Player player2;
@@ -22,8 +23,8 @@ public class GameLogic implements PlayableLogic{
     public boolean locate_disc(Position a, Disc disc)
     {
         if (isValidPosition(a)&&board[a.row()][a.col]==null&& countFlips(a)>0) {
-        board[a.row()][a.col]=disc;
-        return true;
+            board[a.row()][a.col]=disc;
+            return true;
         }
         return false;
     }
@@ -43,30 +44,27 @@ public class GameLogic implements PlayableLogic{
     public List<Position> ValidMoves() {
         List<Position>ans=new ArrayList<>();
 
-            for (int i = 0; i <8 ; i++) {
-                for (int j = 0; j < 8; j++) {
-                    Position position = new Position(i, j);
-                    if (countFlips(position) > 0) {
-                        ans.add(position);
-                    }
+        for (int i = 0; i <8 ; i++) {
+            for (int j = 0; j < 8; j++) {
+                Position position = new Position(i, j);
+                if (countFlips(position) > 0) {
+                    ans.add(position);
                 }
-
             }
-            return ans;
+
+        }
+        return ans;
 
     }
 
     @Override
     public int countFlips(Position a)
     {
-
-//if (player1.isPlayerOne) {
+        if (player1.isPlayerOne) {
             return movePosition(a, player1, player2).size();
-//}
-     //   else
-       //     return movePosition(a,player2,player1).size();
-
-
+        }
+        else
+            return movePosition(a,player2,player1).size();
     }
 
     @Override
@@ -252,3 +250,5 @@ public class GameLogic implements PlayableLogic{
         return GameLogic.isValidPosition(position) && position.getDisc().getOwner() == otherPlayer&&position.getDisc()==null;
     }
 }
+
+ */

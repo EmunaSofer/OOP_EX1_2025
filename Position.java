@@ -28,5 +28,9 @@ public class Position {
     public Disc getDisc(){
         return this.disc;
     }
+    public void setDisc(Disc disc)
+    {
+        this.disc=disc;
+    }
 
 }
