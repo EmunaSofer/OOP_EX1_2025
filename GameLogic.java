@@ -11,6 +11,7 @@ public class GameLogic implements PlayableLogic{
 
     public GameLogic()
 
+
     {
         this.board=new Disc[boardSize][boardSize];
         this.firstPlayerTurn=true;
