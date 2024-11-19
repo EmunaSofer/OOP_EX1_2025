@@ -53,9 +53,6 @@ public class GameLogic implements PlayableLogic{
     @Override
     public int countFlips(Position a)
     {
-//       if (player1.isHuman()){
-//            //return
-//        }
        return 1;
     }
 
