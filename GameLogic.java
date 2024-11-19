@@ -10,6 +10,7 @@ public class GameLogic implements PlayableLogic{
     private boolean firstPlayerTurn;
 
     public GameLogic()
+
     {
         this.board=new Disc[boardSize][boardSize];
         this.firstPlayerTurn=true;
