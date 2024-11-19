@@ -24,6 +24,9 @@ public class GameLogic implements PlayableLogic{
     {
         if (isValidPosition(a)&&board[a.row()][a.col]==null&& countFlips(a)>0) {
         board[a.row()][a.col]=disc;
+        C(a);
+        this.firstPlayerTurn=!firstPlayerTurn;
+
         return true;
         }
         return false;
@@ -77,7 +80,7 @@ public class GameLogic implements PlayableLogic{
                 if (i == 0 && j == 0) {
                     continue;
                 }
-                totalFlips += countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j);
+                totalFlips += countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j).size();
             }
         }
 
@@ -135,14 +138,13 @@ public class GameLogic implements PlayableLogic{
         return pos.col()>=0 && pos.col()<8 && pos.row()>=0 && pos.row()<8;
     }
 
-    private int countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
+    private List<Position> countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
         int row = start.row() + dRow;
         int col = start.col() + dCol;
-        int flips = 0;
-
+        List<Position>flips = new ArrayList<>();
         // נבדוק כל עוד המיקום חוקי והדיסק שייך ליריב
         while (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == opponentPlayer) {
-            flips++;
+            flips.add(new Position(row, col));
             row += dRow;
             col += dCol;
         }
@@ -152,9 +154,34 @@ public class GameLogic implements PlayableLogic{
             return flips;
         }
 
+        flips.clear();
         // אחרת, אין רצף חוקי בכיוון הזה
-        return 0;
+        return flips;
     }
+
+    //הפעולה משנה את הדיקסיות אחרי בחירת המיקו
+    public void C(Position a)
+    {
+        List<Position>A=new ArrayList<>();
+        Player currentPlayer = firstPlayerTurn ? player1 : player2;
+        Player opponentPlayer = firstPlayerTurn ? player2 : player1;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                // אם גם i וגם j הם 0, זה הכיוון המרכזי, לא נרצה לבדוק אותו
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                List<Position> help=new ArrayList<>(countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j));
+                A.addAll(help);
+            }
+
+        }
+        for (int i = 0; i <A.size() ; i++) {
+            getDiscAtPosition(A.get(i)).setOwner(currentPlayer);
+        }
+    }
+
+
 
 
 }
