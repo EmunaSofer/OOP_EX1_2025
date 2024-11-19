@@ -10,13 +10,14 @@ public class GameLogic implements PlayableLogic{
     private boolean firstPlayerTurn;
 
 
-    public GameLogic()
 
-    {
-        this.board=new Disc[boardSize][boardSize];
-        this.firstPlayerTurn=true;
 
+
+    public GameLogic() {
+        this.board = new Disc[boardSize][boardSize];
+        this.firstPlayerTurn = true;
     }
+
     //להוסיף מצב של אותו דבר ליד
     @Override
     public boolean locate_disc(Position a, Disc disc)
@@ -60,14 +61,31 @@ public class GameLogic implements PlayableLogic{
     public int countFlips(Position a)
     {
 
-//if (player1.isPlayerOne) {
-            return movePosition(a, player1, player2).size();
-//}
-     //   else
-       //     return movePosition(a,player2,player1).size();
+        if (!isValidPosition(a) || board[a.row()][a.col()] != null) {
+            return 0; // הנקודה תפוסה או לא חוקית
+        }
 
+        Player currentPlayer = firstPlayerTurn ? player1 : player2;
+        Player opponentPlayer = firstPlayerTurn ? player2 : player1;
 
+        int totalFlips = 0;
+
+        // עבור כל כיוון מתוך הכיוונים המוגדרים במערך
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                // אם גם i וגם j הם 0, זה הכיוון המרכזי, לא נרצה לבדוק אותו
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                totalFlips += countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j);
+            }
+        }
+
+        return totalFlips;
     }
+
+
+
 
     @Override
     public Player getFirstPlayer() {
@@ -104,6 +122,8 @@ public class GameLogic implements PlayableLogic{
         board[4][4] = new SimpleDisc(player1);
         board[3][4] = new SimpleDisc(player2);
         board[4][3] = new SimpleDisc(player2);
+
+
     }
 
     @Override
@@ -115,140 +135,26 @@ public class GameLogic implements PlayableLogic{
         return pos.col()>=0 && pos.col()<8 && pos.row()>=0 && pos.row()<8;
     }
 
-    public static List<Position> movePosition(Position position, Player currentPlayer, Player otherPlayer)
-    {
-        List<Position> ans=new ArrayList<>();
-        List<Position> help= new ArrayList<>();
-        Position left = new Position(position.row, position.col - 1);
-        Position right = new Position(position.row, position.col + 1);
-        Position up = new Position(position.row - 1, position.col);
-        Position down = new Position(position.row + 1, position.col);
-        Position leftUp = new Position(position.row - 1, position.col - 1);
-        Position leftDoun = new Position(position.row + 1, position.col - 1);
-        Position rightUp = new Position(position.row + 1, position.col - 1);
-        Position rightDoun = new Position(position.row + 1, position.col + 1);
+    private int countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
+        int row = start.row() + dRow;
+        int col = start.col() + dCol;
+        int flips = 0;
 
-        while (cheak(left,otherPlayer))
-        {
-            help.add(left);
-            left.setCol(left.col-1);
+        // נבדוק כל עוד המיקום חוקי והדיסק שייך ליריב
+        while (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == opponentPlayer) {
+            flips++;
+            row += dRow;
+            col += dCol;
         }
-        if (left.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
 
-        while (cheak(right,otherPlayer))
-        {
-            help.add(right);
-            right.setCol(right.col+1);
+        // אם הגענו לדיסק של השחקן הנוכחי, ההיפוכים תקפים
+        if (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == currentPlayer) {
+            return flips;
         }
-        if (right.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
 
-        while (cheak(up,otherPlayer))
-        {
-            help.add(up);
-            up.setRow(up.row-1);
-        }
-        if (up.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        while (cheak(down,otherPlayer))
-        {
-            help.add(down);
-            down.setRow(down.row+1);
-
-        }
-        if (down.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        while (cheak(leftUp,otherPlayer))
-        {
-            help.add(leftUp);
-            leftUp.setCol(leftUp.col-1);
-            leftUp.setRow(leftUp.row-1);
-        }
-        if (leftUp.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        while (cheak(leftDoun,otherPlayer))
-        {
-            help.add(leftDoun);
-            leftDoun.setCol(leftDoun.col-1);
-            leftDoun.setRow(leftDoun.row+1);
-        }
-        if (leftDoun.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        while (cheak(rightUp,otherPlayer))
-        {
-            help.add(rightUp);
-            rightUp.setCol(rightUp.col+1);
-            rightUp.setRow(rightUp.row-1);
-        }
-        if (rightUp.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        while (cheak(rightDoun,otherPlayer))
-        {
-            help.add(rightDoun);
-            rightDoun.setCol(rightDoun.col+1);
-            rightDoun.setRow(rightDoun.row+1);
-        }
-        if (rightDoun.getDisc().getOwner() == currentPlayer)
-        {
-            for (int i = 0; i < help.size(); i++)
-            {
-                ans.add(help.get(i));
-            }
-        }
-        help.clear();
-
-        return  ans;
+        // אחרת, אין רצף חוקי בכיוון הזה
+        return 0;
     }
-    public static boolean cheak(Position position,Player otherPlayer)
-    {
-        return GameLogic.isValidPosition(position) && position.getDisc().getOwner() == otherPlayer&&position.getDisc()==null;
-    }
+
+
 }

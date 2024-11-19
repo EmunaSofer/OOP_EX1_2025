@@ -16,7 +16,6 @@ public class Move
         return this.disc;
     }
 
-
   }
 
 
