@@ -1,0 +1,18 @@
+Subject: [PATCH] צרחות של הצלחותתתתת 20.11
+---
+Index: GameLogic.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/GameLogic.java b/GameLogic.java
+--- a/GameLogic.java	(revision 33cac5d64a58243ecc43f585855f01cd2a295484)
++++ b/GameLogic.java	(revision b33b7b2931eb3836411d5e06137c06abcaa1a566)
+@@ -15,6 +15,7 @@
+ 
+ 
+ 
++
+     public GameLogic() {
+         this.board = new Disc[boardSize][boardSize];
+         this.firstPlayerTurn = true;
