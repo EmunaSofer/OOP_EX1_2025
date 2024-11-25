@@ -175,6 +175,8 @@ public class GameLogic implements PlayableLogic{
                 System.out.println("Undo: flipping back "+tempMove.disc.getType()+ " in ("+tempMove.getList().get(i).row+" , "+tempMove.getList().get(i).col+")");
             }
             this.firstPlayerTurn=!firstPlayerTurn;
+
+
         }
     }
 
