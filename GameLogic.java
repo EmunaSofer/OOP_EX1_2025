@@ -257,6 +257,7 @@ public class GameLogic implements PlayableLogic{
         List<Position> theMoves = new ArrayList<>();
         for (int i = 0; i <A.size() ; i++)
         {
+
             if (!(getDiscAtPosition(A.get(i))instanceof UnflippableDisc))
             {
                 getDiscAtPosition(A.get(i)).setOwner(currentPlayer);
