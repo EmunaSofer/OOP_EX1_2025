@@ -85,8 +85,7 @@ public class GameLogic implements PlayableLogic{
         Player currentPlayer = firstPlayerTurn ? player1 : player2;
         Player opponentPlayer = firstPlayerTurn ? player2 : player1;
 
-        int totalFlips = 0;
-
+        List<Position>A=new ArrayList<>();
         // עבור כל כיוון מתוך הכיוונים המוגדרים במערך
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -94,11 +93,12 @@ public class GameLogic implements PlayableLogic{
                 if (i == 0 && j == 0) {
                     continue;
                 }
-                totalFlips += countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j).size();
+                List<Position> help = countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j);
+                A.addAll(help);
             }
         }
-
-        return totalFlips;
+        hasDuplicates(A);
+        return A.size();
     }
 
 
@@ -211,7 +211,7 @@ public class GameLogic implements PlayableLogic{
         while (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col]. getOwner() == opponentPlayer)
         {
             Position P=new Position(row,col);
-             if (!(getDiscAtPosition(P) instanceof UnflippableDisc))//יש פה בעיה זה לא מראה לי את הדיסק
+             if (!(getDiscAtPosition(P) instanceof UnflippableDisc))
              {
                      flips.add(P);
                  if (getDiscAtPosition(P)instanceof BombDisc)
@@ -229,7 +229,6 @@ public class GameLogic implements PlayableLogic{
         }
         // אם הגענו לדיסק של השחקן הנוכחי, ההיפוכים תקפים
         if (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == currentPlayer) {
-            hasDuplicates(flips);
             return flips;
         }
 
@@ -260,16 +259,6 @@ public class GameLogic implements PlayableLogic{
         {
             if (!(getDiscAtPosition(A.get(i))instanceof UnflippableDisc))
             {
-//                //תוספת שלי - אני חושבת שצריך להוסיף פה פקודה שאם הדיסק במיקום הזה הוא בום דיסק אז צריך לשלוח אותו לפנוק של בום דיסק כדי לקבל רשימה של כל הדיסקים מסביב שצריך להפוך בנוסף למה שאמור להיות לנו בדרך "הרגילה"ץ
-//                if (getDiscAtPosition(A.get(i))instanceof BombDisc)
-//                {
-//                    List<Position> temp = BomFlip(A.get(i), opponentPlayer);
-//                    for (int j = 0; j < temp.size(); j++)
-//                    {
-//                        getDiscAtPosition(temp.get(j)).setOwner(currentPlayer);
-//                        theMoves.add(temp.get(j));
-//                    }
-//                }
                 getDiscAtPosition(A.get(i)).setOwner(currentPlayer);
                 if (currentPlayer == player1) {
                     System.out.println("player 1 flipped the " + getDiscAtPosition(A.get(i)).getType() + " in (" + A.get(i).row + " , " + A.get(i).col + " )");
