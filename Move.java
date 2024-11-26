@@ -8,6 +8,11 @@ public class Move
     protected Position position;
     protected Disc disc;
     private List<Position> countFlips;
+    public Move(Position position, Disc disc)
+    {
+        this.position=position;
+        this.disc=disc;
+    }
     public Move(Position position, Disc disc, List<Position>a) {
         this.position = position;
         this.disc = disc;

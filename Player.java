@@ -3,8 +3,8 @@ public abstract class Player {
     protected int wins;
     protected static final int initial_number_of_bombs = 3;
     protected static final int initial_number_of_unflippedable = 2;
-    protected int number_of_bombs;
-    protected int number_of_unflippedable;
+    protected int number_of_bombs=3;
+    protected int number_of_unflippedable=2;
 
     public Player(boolean isPlayerOne) {
         this.isPlayerOne = isPlayerOne;
@@ -51,10 +51,10 @@ public abstract class Player {
         return number_of_unflippedable;
     }
     public void reduce_bomb() {
-        number_of_bombs--;
+        number_of_bombs=number_of_bombs-1;
     }
     public void reduce_unflippedable() {
-        number_of_unflippedable--;
+        number_of_unflippedable=number_of_unflippedable-1;
     }
     public void reset_bombs_and_unflippedable() {
         this.number_of_bombs = initial_number_of_bombs;

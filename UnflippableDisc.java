@@ -1,6 +1,8 @@
 public class UnflippableDisc implements Disc {
     private Player currentPlayer;
-    public UnflippableDisc(Player currentPlayer) {
+    public UnflippableDisc(Player currentPlayer)
+    {
+        this.currentPlayer=currentPlayer;
     }
 
     @Override

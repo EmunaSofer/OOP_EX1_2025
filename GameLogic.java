@@ -25,23 +25,27 @@ public class GameLogic implements PlayableLogic{
     @Override
     public boolean locate_disc(Position a, Disc disc)
     {
-        if (isValidPosition(a)&&board[a.row()][a.col]==null&& countFlips(a)>0) {
-        board[a.row()][a.col]=disc;
-        if(firstPlayerTurn) {
-            System.out.println("player 1 place a ? in ("+a.row+","+a.col+")");
-        }
-        else
+        if (isValidPosition(a)&&board[a.row()][a.col()]==null&& countFlips(a)>0 && o(disc))
         {
-            System.out.println("player 2 place a ? in ("+a.row+","+a.col+")");
-        }
-        Move move = new Move(a,disc,C(a));
-        stack.push(move);
-        C(a);
-        this.firstPlayerTurn=!firstPlayerTurn;
+            if (disc instanceof BombDisc)
+                disc.getOwner().reduce_bomb();
+            if (disc instanceof  UnflippableDisc)
+                disc.getOwner().reduce_unflippedable();
+            board[a.row()][a.col()]=disc;
+            if(firstPlayerTurn) {
+                System.out.println("player 1 place a "+disc.getType()+" in ("+a.row+","+a.col+")");
+            }
+            else
+            {
+                System.out.println("player 2 place a "+disc.getType()+" in ("+a.row+","+a.col+")");
+            }
+            Move move = new Move(a,disc,C(a));
+            stack.push(move);
+            this.firstPlayerTurn=!firstPlayerTurn;
 
-        return true;
-        }
-        return false;
+            return true;
+            }
+            return false;
     }
 
     @Override
@@ -127,21 +131,22 @@ public class GameLogic implements PlayableLogic{
         {
          int discOfPlayer1 =0;
          int discOfPlayer2=0;
-         if (getDiscAtPosition(stack.pop().position).getOwner()==this.player1)
+         while (!stack.isEmpty())
          {
-             discOfPlayer1++;
+             if (getDiscAtPosition(stack.pop().position).getOwner() == this.player1) {
+                 discOfPlayer1++;
+             } else {
+                 discOfPlayer2++;
+             }
          }
-         else
-         {
-             discOfPlayer2++;
-         }
-         if(discOfPlayer1>discOfPlayer2)
+         if(discOfPlayer1>discOfPlayer2) {
              this.player1.wins++;
-         System.out.println("player 1 win");
+             System.out.println("player 1 win with "+discOfPlayer1+" disc! the player 2 had "+discOfPlayer2+" disc");
+         }
          if (discOfPlayer2>discOfPlayer1)
          {
              this.player2.wins++;
-             System.out.println("player 2 win");
+             System.out.println("player 2 win with "+discOfPlayer2+" disc! the player 1 had "+discOfPlayer1+" disc");
          }
         }
         return ValidMoves().isEmpty();
@@ -164,6 +169,10 @@ public class GameLogic implements PlayableLogic{
     public void undoLastMove() {
         if (!stack.isEmpty()){
             Move tempMove = this.stack.pop();
+            if (tempMove.disc instanceof BombDisc)
+                tempMove.disc.getOwner().number_of_bombs++;
+            if (tempMove.disc instanceof UnflippableDisc)
+                tempMove.disc.getOwner().number_of_unflippedable++;
             board[tempMove.position.row][tempMove.position.col] = null;
             System.out.println("Undoing last move:");
             System.out.println("Undo: removing "+tempMove.disc.getType()+" from ("+tempMove.position.row+" , "+tempMove.position.col+")");
@@ -189,24 +198,38 @@ public class GameLogic implements PlayableLogic{
             disc.setOwner(getFirstPlayer());
     }
 
-    public static boolean isValidPosition(Position pos)
-    {
-        return pos.col()>=0 && pos.col()<8 && pos.row()>=0 && pos.row()<8;
+    public static boolean isValidPosition(Position pos) {
+        return pos.col() >= 0 && pos.col() < 8 && pos.row() >= 0 && pos.row() < 8;
     }
 
-    private List<Position> countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
+    //הפעולה מחזירה לי רשימה של כל המקומות שיתהפכו
+    public List<Position> countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
         int row = start.row() + dRow;
         int col = start.col() + dCol;
         List<Position>flips = new ArrayList<>();
         // נבדוק כל עוד המיקום חוקי והדיסק שייך ליריב
-        while (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == opponentPlayer) {
-            flips.add(new Position(row, col));
-            row += dRow;
-            col += dCol;
-        }
+        while (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col]. getOwner() == opponentPlayer)
+        {
+            Position P=new Position(row,col);
+             if (!(getDiscAtPosition(P) instanceof UnflippableDisc))//יש פה בעיה זה לא מראה לי את הדיסק
+             {
+                     flips.add(P);
+                 if (getDiscAtPosition(P)instanceof BombDisc)
+                 {
+                     List<Position>help=BomFlip(P,opponentPlayer);
+                     for (int k = 0; k <help.size() ; k++)
+                     {
+                             flips.add(help.get(k));
+                     }
+                 }
+             }
+                row += dRow;
+                col += dCol;
 
+        }
         // אם הגענו לדיסק של השחקן הנוכחי, ההיפוכים תקפים
         if (isValidPosition(new Position(row, col)) && board[row][col] != null && board[row][col].getOwner() == currentPlayer) {
+            hasDuplicates(flips);
             return flips;
         }
 
@@ -215,7 +238,7 @@ public class GameLogic implements PlayableLogic{
         return flips;
     }
 
-    //הפעולה משנה את הדיקסיות אחרי בחירת המיקו
+    //הפעולה משנה את הדיקסיות אחרי בחירת המיקום
     public  List<Position> C(Position a)
     {
         List<Position>A=new ArrayList<>();
@@ -232,24 +255,78 @@ public class GameLogic implements PlayableLogic{
                 A.addAll(help);
             }
         }
-
         List<Position> theMoves = new ArrayList<>();
         for (int i = 0; i <A.size() ; i++)
         {
-            //if(getDiscAtPosition(A.get(i)).getType()!=BombDisc)
-            getDiscAtPosition(A.get(i)).setOwner(currentPlayer);
-            if (currentPlayer==player1) {
-                System.out.println("player 1 flipped the" +getDiscAtPosition(A.get(i)).getType()+ "in (" + A.get(i).row + " , " + A.get(i).col + " )");
-            }
-            else
+            if (!(getDiscAtPosition(A.get(i))instanceof UnflippableDisc))
             {
-                System.out.println("player 2 flipped the" +getDiscAtPosition(A.get(i)).getType()+" in (" + A.get(i).row + " , " + A.get(i).col + " )");
+//                //תוספת שלי - אני חושבת שצריך להוסיף פה פקודה שאם הדיסק במיקום הזה הוא בום דיסק אז צריך לשלוח אותו לפנוק של בום דיסק כדי לקבל רשימה של כל הדיסקים מסביב שצריך להפוך בנוסף למה שאמור להיות לנו בדרך "הרגילה"ץ
+//                if (getDiscAtPosition(A.get(i))instanceof BombDisc)
+//                {
+//                    List<Position> temp = BomFlip(A.get(i), opponentPlayer);
+//                    for (int j = 0; j < temp.size(); j++)
+//                    {
+//                        getDiscAtPosition(temp.get(j)).setOwner(currentPlayer);
+//                        theMoves.add(temp.get(j));
+//                    }
+//                }
+                getDiscAtPosition(A.get(i)).setOwner(currentPlayer);
+                if (currentPlayer == player1) {
+                    System.out.println("player 1 flipped the " + getDiscAtPosition(A.get(i)).getType() + " in (" + A.get(i).row + " , " + A.get(i).col + " )");
+                } else {
+                    System.out.println("player 2 flipped the " + getDiscAtPosition(A.get(i)).getType() + " in (" + A.get(i).row + " , " + A.get(i).col + " )");
+                }
+                theMoves.add(A.get(i));
             }
-            theMoves.add(A.get(i));
+
         }
+
         return theMoves;
+
     }
 
+    //פעולה שמחזירה אם בחרו דיסק מיוחד ואם אפשר להשתמש בו
+    public boolean o(Disc disc) {
+        boolean ans1=true;
+        boolean ans2=true;
+        if (disc instanceof BombDisc) {
+            ans1 = (disc.getOwner().getNumber_of_bombs() != 0);// בדיקה שאין בעיה עם מספר ה "בוםדיסק"
+        }
+        if (disc instanceof UnflippableDisc) {
+            ans2= (disc.getOwner().getNumber_of_unflippedable() != 0);//בדיקה שאין לנו בעיה עם הדיסק שלא מתהפך
+        }
+        return ans1 && ans2;
+    }
+    public List<Position > BomFlip(Position a ,Player opponentPlayer)
+    {
+        List<Position> ans=new ArrayList<>();
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++)
+            {
+                // אם גם i וגם j הם 0, זה הכיוון המרכזי, לא נרצה לבדוק אותו
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                Position newPos = new Position(a.row() + i, a.col() + j);
+                if (getDiscAtPosition(newPos)!=null)
+                {
+                    if (getDiscAtPosition(newPos).getOwner() == opponentPlayer)
+                        ans.add(newPos);
+                }
+            }
+        }
+        return ans;
+    }
+    //פעולה שמקבלת רשימה ומחזירה את אותה רשימה רק בלי כפיליות
+    public static void hasDuplicates(List<Position> list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i + 1; j < list.size(); j++) {
+                if (list.get(i).col()==(list.get(j)).col() && list.get(i).row()==list.get(i).row()) {
+                    list.remove(list.get(j));
+                }
+            }
+        }
+    }
 
 
 
