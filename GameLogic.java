@@ -286,6 +286,7 @@ public class GameLogic implements PlayableLogic{
             ans2= (disc.getOwner().getNumber_of_unflippedable() != 0);//בדיקה שאין לנו בעיה עם הדיסק שלא מתהפך
         }
         return ans1 && ans2;
+
     }
     public List<Position > BomFlip(Position a ,Player opponentPlayer)
     {
