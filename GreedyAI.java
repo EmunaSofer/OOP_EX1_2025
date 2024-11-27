@@ -25,60 +25,38 @@ public class GreedyAI extends AIPlayer {
                 P.add(choices.get(i));
             }
         }
-        Position Pos= P.get(random(P.size()));
-
-        Disc[] type = new Disc[3];
-        Move ans;
-        if (isPlayerOne) {
-            type[0] = new SimpleDisc(gameStatus.getFirstPlayer());
-
-            type[1] = new BombDisc(gameStatus.getFirstPlayer());
-
-            type[2] = new UnflippableDisc(gameStatus.getFirstPlayer());
-
-            ans = new Move(Pos, type(type, gameStatus.getFirstPlayer()) );
-        } else {
-            type[0] = new SimpleDisc(gameStatus.getSecondPlayer());
-
-            type[1] = new BombDisc(gameStatus.getSecondPlayer());
-
-            type[2] = new UnflippableDisc(gameStatus.getSecondPlayer());
-
-            ans = new Move(Pos, type(type, gameStatus.getSecondPlayer()));
+        //בדיקה של האיבר הכי ימני
+        if (P.size()>1)
+        {
+            for (int i = 0; i <P.size()-1 ; i++) {
+                if (P.get(i).col()>P.get(i+1).col())
+                    P.remove(P.get(i+1));
+                if (P.get(i).col()<P.get(i+1).col())
+                    P.remove(P.get(i));
+            }
+        }
+        //בדיקת האיבר הכי למטה
+        if (P.size()>1)
+        {
+            for (int i = 0; i <P.size()-1 ; i++) {
+                if (P.get(i).row()>P.get(i+1).row())
+                    P.remove(P.get(i+1));
+                if (P.get(i).row()<P.get(i+1).row())
+                    P.remove(P.get(i));
+            }
         }
 
+        SimpleDisc type=new SimpleDisc(gameStatus.getSecondPlayer());
+        Move ans;
+        if (isPlayerOne) {
+            ans = new Move(P.get(0), type );
+        } else {
+            ans = new Move(P.get(0), type);
+        }
         return ans;
 
     }
-    //פעולה שבוחרת באופן רנדומאלי את סוג הדיסק עם המגבלות
-    public static Disc type(Disc[] discs, Player player) {
-        if (player.getNumber_of_unflippedable() != 0 && player.getNumber_of_bombs() != 0) {
-            int randomPlace = random(3);
-            if (randomPlace == 1) {
-                return discs[1];
-            }
-            if (randomPlace == 2) {
-                return discs[2];
-            }
-            return discs[0];
-        }
-        if (player.getNumber_of_unflippedable() != 0) {
-            int randomPlace = random(2);
-            if (randomPlace == 1) {
-                return discs[2];
-            } else
-                return discs[0];
-        }
-        if (player.getNumber_of_bombs() != 0) {
-            int randomPlace = random(2);
-            if (randomPlace == 1) {
-                return discs[1];
-            } else
-                return discs[0];
-        }
 
-        return discs[0];
-    }
     public  static int random (int k)
     {
         int a;

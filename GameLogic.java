@@ -42,7 +42,7 @@ public class GameLogic implements PlayableLogic{
             Move move = new Move(a,disc,C(a));
             stack.push(move);
             this.firstPlayerTurn=!firstPlayerTurn;
-
+            System.out.println();
             return true;
             }
             return false;
@@ -204,6 +204,7 @@ public class GameLogic implements PlayableLogic{
 
     //הפעולה מחזירה לי רשימה של כל המקומות שיתהפכו
     public List<Position> countFlipsInDirection(Position start, Player currentPlayer, Player opponentPlayer, int dRow, int dCol) {
+        List<Position> BomFlip=new ArrayList<>();
         int row = start.row() + dRow;
         int col = start.col() + dCol;
         List<Position>flips = new ArrayList<>();
@@ -214,13 +215,9 @@ public class GameLogic implements PlayableLogic{
              if (!(getDiscAtPosition(P) instanceof UnflippableDisc))
              {
                      flips.add(P);
-                 if (getDiscAtPosition(P)instanceof BombDisc)
-                 {
-                     List<Position>help=BomFlip(P,opponentPlayer);
-                     for (int k = 0; k <help.size() ; k++)
-                     {
-                             flips.add(help.get(k));
-                     }
+                 if (getDiscAtPosition(P) instanceof BombDisc) {
+                     List<Position> bombFlips = BomFlip(P, opponentPlayer, BomFlip);
+                     flips.addAll(bombFlips); // הוספת כל התוצאות מהרקורסיה
                  }
              }
                 row += dRow;
@@ -240,20 +237,21 @@ public class GameLogic implements PlayableLogic{
     //הפעולה משנה את הדיקסיות אחרי בחירת המיקום
     public  List<Position> C(Position a)
     {
-        List<Position>A=new ArrayList<>();
+        List<Position> A = new ArrayList<>();
         Player currentPlayer = firstPlayerTurn ? player1 : player2;
         Player opponentPlayer = firstPlayerTurn ? player2 : player1;
-        for (int i = -1; i <= 1; i++)
-        {
+
+        for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                // אם גם i וגם j הם 0, זה הכיוון המרכזי, לא נרצה לבדוק אותו
                 if (i == 0 && j == 0) {
                     continue;
                 }
-                List<Position> help=new ArrayList<>(countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j));
+                List<Position> help = countFlipsInDirection(a, currentPlayer, opponentPlayer, i, j);
                 A.addAll(help);
             }
         }
+        hasDuplicates(A);
+        // שינוי בעלי הדיסקים
         List<Position> theMoves = new ArrayList<>();
         for (int i = 0; i <A.size() ; i++)
         {
@@ -288,35 +286,66 @@ public class GameLogic implements PlayableLogic{
         return ans1 && ans2;
 
     }
-    public List<Position > BomFlip(Position a ,Player opponentPlayer)
-    {
-        List<Position> ans=new ArrayList<>();
+    public List<Position> BomFlip(Position a, Player opponentPlayer, List<Position> visited) {
+        List<Position> ans = new ArrayList<>();
+
+        // בסיס הרקורסיה: אם העמדה כבר ביקרה, חזור מיד
+        if (isIn(a,visited)) {
+            return ans;
+        }
+        else {
+            // הוסף את העמדה הנוכחית לרשימת הביקורים
+            visited.add(a);
+        }
+
         for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++)
-            {
-                // אם גם i וגם j הם 0, זה הכיוון המרכזי, לא נרצה לבדוק אותו
+            for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
+
                 Position newPos = new Position(a.row() + i, a.col() + j);
-                if (getDiscAtPosition(newPos)!=null)
-                {
-                    if (getDiscAtPosition(newPos).getOwner() == opponentPlayer)
+
+                if (getDiscAtPosition(newPos) != null) {
+                    // אם מדובר בדיסק של היריב
+                    if (getDiscAtPosition(newPos).getOwner() == opponentPlayer) {
                         ans.add(newPos);
+                    }
+
+                    // אם מדובר ב־BombDisc
+                    if (getDiscAtPosition(newPos) instanceof BombDisc) {
+                        ans.addAll(BomFlip(newPos, opponentPlayer, visited));
+                    }
                 }
             }
         }
+
         return ans;
     }
+
     //פעולה שמקבלת רשימה ומחזירה את אותה רשימה רק בלי כפיליות
     public static void hasDuplicates(List<Position> list) {
         for (int i = 0; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++) {
-                if (list.get(i).col()==(list.get(j)).col() && list.get(i).row()==list.get(i).row()) {
+                if (list.get(i).col()==list.get(j).col() && list.get(i).row()==list.get(j).row()) {
                     list.remove(list.get(j));
+                    j--;
                 }
             }
         }
+    }
+
+    //פעולה שבודקת אם נקודה כבר נמצאת ברשימה
+    public static boolean isIn(Position a, List<Position> positions)
+    {
+        if (positions.size()==0)
+            return false;
+        for (int i = 0; i <positions.size() ; i++)
+        {
+            if (positions.get(i).row()==a.row() && positions.get(i).col()==a.col())
+                return true;
+        }
+        return false;
     }
 
 
