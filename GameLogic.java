@@ -286,6 +286,7 @@ public class GameLogic implements PlayableLogic{
         return ans1 && ans2;
 
     }
+    //פעולה שמחזירה רשימה של כל הנקות המתהפכות סביב הבום דיסק
     public List<Position> BomFlip(Position a, Player opponentPlayer, List<Position> visited) {
         List<Position> ans = new ArrayList<>();
 
@@ -308,7 +309,7 @@ public class GameLogic implements PlayableLogic{
 
                 if (getDiscAtPosition(newPos) != null) {
                     // אם מדובר בדיסק של היריב
-                    if (getDiscAtPosition(newPos).getOwner() == opponentPlayer) {
+                    if (getDiscAtPosition(newPos).getOwner() == opponentPlayer && !(getDiscAtPosition(newPos) instanceof UnflippableDisc)) {
                         ans.add(newPos);
                     }
 
