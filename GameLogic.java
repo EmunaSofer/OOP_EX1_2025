@@ -163,6 +163,8 @@ public class GameLogic implements PlayableLogic{
         board[3][4] = new SimpleDisc(player2);
         board[4][3] = new SimpleDisc(player2);
         this.stack.clear();
+        player1.reset_bombs_and_unflippedable();
+        player2.reset_bombs_and_unflippedable();
     }
 
     @Override
